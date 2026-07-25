@@ -1,0 +1,90 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const years = [...new Set(posts.map((post) => post.data.pubDate.getFullYear()))];
+---
+
+<BaseLayout title="blog archive">
+  <div class="page container" data-pagefind-body>
+    <header class="page-heading">
+      <p class="eyebrow">Every note</p>
+      <h1>blog archive</h1>
+      <p>Research notes arranged in reverse chronological order.</p>
+    </header>
+
+    {
+      years.map((year) => (
+        <section class="archive-year">
+          <h2>{year}</h2>
+          <div>
+            {posts
+              .filter((post) => post.data.pubDate.getFullYear() === year)
+              .map((post) => (
+                <article>
+                  <time>
+                    {post.data.pubDate.toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                    })}
+                  </time>
+                  <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                  <span>{post.data.category}</span>
+                </article>
+              ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .archive-year {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .archive-year h2 {
+    margin: 0;
+    color: var(--faint);
+    font-size: 1rem;
+  }
+
+  article {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0.65rem 0;
+  }
+
+  time,
+  article span {
+    color: var(--faint);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 600px) {
+    .archive-year {
+      display: block;
+    }
+
+    .archive-year h2 {
+      margin-bottom: 0.6rem;
+    }
+
+    article {
+      grid-template-columns: 62px 1fr;
+    }
+
+    article span {
+      display: none;
+    }
+  }
+</style>

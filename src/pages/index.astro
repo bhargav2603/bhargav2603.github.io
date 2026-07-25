@@ -1,0 +1,234 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import profileImage from "../assets/bhargav-profile.png";
+import Icon from "../components/Icon.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+import { siteConfig } from "../config";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = (await getCollection("projects"))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 2);
+---
+
+<BaseLayout>
+  <div class="page container" data-pagefind-body>
+    <section class="about-hero">
+      <div class="about-copy">
+        <p class="eyebrow">Quantum algorithms · Scientific software</p>
+        <h1>Bhargav <strong>Krishna</strong></h1>
+        <p class="subtitle">{siteConfig.role}</p>
+        <div class="bio">
+          <p>{siteConfig.positioning}</p>
+          <p>{siteConfig.currentWork}</p>
+          <p>
+            Previously, I worked at PwC India in Cybersecurity Risk Consulting, where I analyzed
+            security data and learned to communicate technical evidence clearly under operational
+            constraints.
+          </p>
+        </div>
+        <p class="broader-interests">{siteConfig.broaderInterests}</p>
+        <div class="hero-actions">
+          <a class="button" href="/projects/">Research & projects <Icon name="arrow" size={17} /></a
+          >
+          <a class="button secondary" href="/cv/">View CV <Icon name="arrow" size={17} /></a>
+        </div>
+        <SocialLinks />
+      </div>
+      <figure class="profile">
+        <Image
+          src={profileImage}
+          alt="Professional portrait of Bhargav Krishna"
+          widths={[320, 480, 640]}
+          sizes="(max-width: 700px) 72vw, 300px"
+          format="webp"
+          quality={84}
+          loading="eager"
+        />
+      </figure>
+    </section>
+
+    <section class="selected-work">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Selected work</p>
+          <h2>Research projects</h2>
+        </div>
+        <a href="/projects/">All projects <Icon name="arrow" size={16} /></a>
+      </div>
+      <div class="card-grid">
+        {
+          projects.map((project) => (
+            <ProjectCard id={project.id} data={project.data} headingLevel={3} />
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="contact-note">
+      <p class="eyebrow">Contact</p>
+      <h2>Interested in quantum algorithms or scientific software?</h2>
+      <p>
+        I'm open to research conversations, technical discussions, collaborations, and opportunities
+        where careful experimentation and reliable software matter.
+      </p>
+      <div class="contact-links" aria-label="Contact links">
+        <a
+          href={siteConfig.linkedin}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Connect with Bhargav on LinkedIn"
+        >
+          <Icon name="linkedin" size={22} />
+        </a>
+        <a
+          href={`mailto:${siteConfig.email}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Email Bhargav at ${siteConfig.email}`}
+        >
+          <Icon name="mail" size={22} />
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(2rem, 7vw, 5rem);
+    align-items: start;
+  }
+
+  h1 {
+    margin-bottom: 0.1rem;
+    font-size: clamp(2.8rem, 6vw, 3.5rem);
+    font-weight: 620;
+  }
+
+  h1 strong {
+    font-weight: 720;
+  }
+
+  .subtitle {
+    margin-bottom: 1.6rem;
+    color: var(--muted);
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .bio {
+    max-width: 66ch;
+    color: var(--body-text);
+  }
+
+  .broader-interests {
+    max-width: 66ch;
+    margin: 1rem 0 0;
+    color: var(--faint);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 1.55rem 0 1.2rem;
+  }
+
+  .profile {
+    margin: 0;
+  }
+
+  .profile :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    object-fit: cover;
+    box-shadow: var(--shadow);
+  }
+
+  .selected-work {
+    margin-top: 4.5rem;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-heading .eyebrow {
+    margin-bottom: 0.3rem;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: 1.7rem;
+  }
+
+  .section-heading > a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+  }
+
+  .contact-note {
+    margin-top: 4.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+  }
+
+  .contact-note h2 {
+    max-width: 610px;
+    margin: 0 0 0.7rem;
+    font-size: 1.75rem;
+  }
+
+  .contact-note p:not(.eyebrow) {
+    max-width: 650px;
+    color: var(--muted);
+  }
+
+  .contact-links {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .contact-links a {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+  }
+
+  .contact-links a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  @media (max-width: 760px) {
+    .about-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .profile {
+      max-width: 260px;
+    }
+  }
+</style>

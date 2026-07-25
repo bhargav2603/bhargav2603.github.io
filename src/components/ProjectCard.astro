@@ -1,0 +1,126 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  id: string;
+  headingLevel?: 2 | 3;
+  data: {
+    title: string;
+    shortTitle: string;
+    summary: string;
+    technologies: string[];
+    repoUrl: string;
+    category: string;
+    status: string;
+    accent: "coral" | "ink" | "stone";
+  };
+}
+
+const { id, data, headingLevel = 2 } = Astro.props;
+const Heading = `h${headingLevel}` as "h2" | "h3";
+---
+
+<article class:list={["project-card", "card", `accent-${data.accent}`]}>
+  <div class="project-stripe" aria-hidden="true"></div>
+  <div class="project-body">
+    <div class="project-meta">
+      <span class="eyebrow">{data.category}</span>
+      <span class="status">{data.status}</span>
+    </div>
+    <Heading><a href={`/projects/${id}/`}>{data.shortTitle}</a></Heading>
+    <p>{data.summary}</p>
+    <div class="tech-list">
+      {data.technologies.map((technology) => <span class="pill">{technology}</span>)}
+    </div>
+    <div class="project-actions">
+      <a href={`/projects/${id}/`}>details <Icon name="arrow" size={16} /></a>
+      <a href={data.repoUrl} target="_blank" rel="noreferrer">
+        code <Icon name="github" size={16} />
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .project-stripe {
+    height: 4px;
+    background: var(--text);
+  }
+
+  .accent-ink .project-stripe {
+    background: var(--faint);
+  }
+
+  .accent-stone .project-stripe {
+    background: var(--border-strong);
+  }
+
+  .project-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .project-meta,
+  .project-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .status {
+    color: var(--faint);
+    font-size: 0.78rem;
+  }
+
+  h2,
+  h3 {
+    margin: 0.15rem 0 0.55rem;
+    font-size: 1.2rem;
+  }
+
+  h2 a,
+  h3 a {
+    color: var(--text);
+  }
+
+  h2 a:hover,
+  h3 a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  p {
+    color: var(--body-text);
+    font-size: 0.94rem;
+  }
+
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .project-actions {
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+
+  .project-actions a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.875rem;
+  }
+</style>

@@ -1,0 +1,165 @@
+---
+import { getCollection, render } from "astro:content";
+import Icon from "../../components/Icon.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const date = post.data.pubDate.toLocaleDateString("en-IN", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} article>
+  <article class="page container" data-pagefind-body>
+    <header class="article-header">
+      <a class="back-link" href="/blog/">← blog</a>
+      <p class="eyebrow">{post.data.category}</p>
+      <h1>{post.data.title}</h1>
+      <p class="dek">{post.data.description}</p>
+      <div class="article-meta">
+        <time datetime={post.data.pubDate.toISOString()}>{date}</time>
+        <span>·</span>
+        <span>{post.data.readingTime ?? "research note"}</span>
+      </div>
+      <div class="article-tags">
+        {
+          post.data.tags.map((tag: string) => (
+            <a class="pill" href={`/blog/tags/${encodeURIComponent(tag)}/`}>
+              <Icon name="tag" size={12} /> {tag}
+            </a>
+          ))
+        }
+      </div>
+    </header>
+
+    <div class="article-shell">
+      <div class="prose article-body">
+        <Content />
+      </div>
+      {
+        post.data.toc && headings.length > 0 && (
+          <aside class="toc" aria-label="Table of contents" data-pagefind-ignore>
+            <strong>on this page</strong>
+            {headings
+              .filter((heading: any) => heading.depth <= 3)
+              .map((heading: any) => (
+                <a href={`#${heading.slug}`} data-depth={heading.depth}>
+                  {heading.text}
+                </a>
+              ))}
+          </aside>
+        )
+      }
+    </div>
+
+    <footer class="article-footer">
+      <p>Explore the implementation and validation suite on GitHub.</p>
+      <a
+        class="button secondary"
+        href="https://github.com/bhargav2603/FMO-VQE"
+        target="_blank"
+        rel="noreferrer"
+      >
+        view FMO-VQE <Icon name="github" size={17} />
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-header {
+    max-width: 740px;
+    margin-bottom: 3rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--muted);
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+
+  h1 {
+    margin-bottom: 0.75rem;
+    font-size: clamp(2rem, 6vw, 3.15rem);
+    font-weight: 650;
+  }
+
+  .dek {
+    max-width: 700px;
+    color: var(--muted);
+    color: var(--body-text);
+    font-size: 1.08rem;
+  }
+
+  .article-body {
+    min-width: 0;
+  }
+
+  .article-body :global(.workflow-figure) {
+    margin: 2rem 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    background: var(--surface);
+  }
+
+  .article-body :global(.workflow-figure figcaption) {
+    margin-top: 0.5rem;
+    color: var(--faint);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .article-body :global(.flow-card) {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+  }
+
+  .article-body :global(.flow-card.result) {
+    stroke: var(--accent);
+  }
+
+  .article-body :global(.flow-arrow) {
+    stroke: var(--muted);
+    stroke-width: 2;
+  }
+
+  .article-body :global(.flow-kicker) {
+    fill: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .article-body :global(.flow-title) {
+    fill: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .article-body :global(.flow-note) {
+    fill: var(--muted);
+    font-size: 11px;
+  }
+
+  .article-footer {
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+  }
+
+  .article-footer p {
+    color: var(--muted);
+  }
+</style>

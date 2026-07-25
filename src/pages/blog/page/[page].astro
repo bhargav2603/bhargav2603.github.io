@@ -1,0 +1,52 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import BlogCard from "../../../components/BlogCard.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
+  return paginate(posts, { pageSize: 10 })
+    .filter((route) => Number(route.params.page) > 1)
+    .map((route) => route);
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<BaseLayout title={`blog — page ${page.currentPage}`}>
+  <div class="page container" data-pagefind-body>
+    <header class="page-heading">
+      <p class="eyebrow">Notes and research</p>
+      <h1>blog</h1>
+      <p>Page {page.currentPage} of {page.lastPage}</p>
+    </header>
+    <div class="blog-list">
+      {page.data.map((post: any) => <BlogCard id={post.id} data={post.data} />)}
+    </div>
+    <nav class="pagination" aria-label="Blog pagination">
+      {page.url.prev && <a href={page.url.prev}>←</a>}
+      {
+        Array.from({ length: page.lastPage }, (_, index) => {
+          const number = index + 1;
+          const href = number === 1 ? "/blog/" : `/blog/page/${number}/`;
+          return number === page.currentPage ? (
+            <span class="current">{number}</span>
+          ) : (
+            <a href={href}>{number}</a>
+          );
+        })
+      }
+      {page.url.next && <a href={page.url.next}>→</a>}
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  .blog-list {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

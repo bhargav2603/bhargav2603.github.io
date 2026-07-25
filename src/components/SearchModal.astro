@@ -1,0 +1,23 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<dialog class="search-dialog" data-search-dialog data-pagefind-ignore>
+  <div class="search-shell">
+    <div class="search-header">
+      <Icon name="search" size={20} />
+      <input
+        type="search"
+        placeholder="Search posts, projects, CV, and interests…"
+        aria-label="Search site"
+        autocomplete="off"
+        data-search-input
+      />
+      <button class="icon-button" type="button" data-search-close aria-label="Close search">
+        <Icon name="close" />
+      </button>
+    </div>
+    <p class="search-status" data-search-status>Start typing to search the site.</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>

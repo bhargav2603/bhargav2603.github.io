@@ -1,0 +1,99 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    pubDate: Date;
+    tags: string[];
+    category: string;
+    readingTime?: string;
+  };
+}
+
+const { id, data } = Astro.props;
+const date = data.pubDate.toLocaleDateString("en-IN", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+---
+
+<article class="blog-card card">
+  <div class="blog-card-top">
+    <span class="eyebrow">{data.category}</span>
+    <time datetime={data.pubDate.toISOString()}>{date}</time>
+  </div>
+  <h2><a href={`/blog/${id}/`}>{data.title}</a></h2>
+  <p>{data.description}</p>
+  <div class="blog-card-footer">
+    <div class="article-tags">
+      {data.tags.map((tag) => <span class="pill">{tag}</span>)}
+    </div>
+    <a class="read-link" href={`/blog/${id}/`}>
+      {data.readingTime ?? "read"}
+      <Icon name="arrow" size={16} />
+    </a>
+  </div>
+</article>
+
+<style>
+  .blog-card {
+    padding: 1.5rem;
+  }
+
+  .blog-card-top,
+  .blog-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .blog-card-top time {
+    color: var(--faint);
+    font-size: 0.8rem;
+  }
+
+  .blog-card h2 {
+    margin: 0.2rem 0 0.55rem;
+    font-size: 1.35rem;
+  }
+
+  .blog-card h2 a {
+    color: var(--text);
+  }
+
+  .blog-card h2 a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .blog-card p {
+    max-width: 72ch;
+    color: var(--body-text);
+    font-size: 0.95rem;
+  }
+
+  .blog-card-footer {
+    margin-top: 1rem;
+  }
+
+  .read-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 540px) {
+    .blog-card-footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

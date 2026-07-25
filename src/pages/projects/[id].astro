@@ -1,0 +1,206 @@
+---
+import { getCollection, render } from "astro:content";
+import Icon from "../../components/Icon.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content, headings } = await render(project);
+---
+
+<BaseLayout title={project.data.shortTitle} description={project.data.summary}>
+  <article class="page container" data-pagefind-body>
+    <a class="back-link" href="/projects/">← projects</a>
+    <header class:list={["project-header", `accent-${project.data.accent}`]}>
+      <p class="eyebrow">{project.data.category}</p>
+      <h1>{project.data.title}</h1>
+      <p class="summary">{project.data.summary}</p>
+      <div class="research-frame">
+        <div>
+          <span>Research question</span>
+          <p>{project.data.question}</p>
+        </div>
+        <div>
+          <span>Current focus</span>
+          <p>{project.data.currentFocus}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="button" href={project.data.repoUrl} target="_blank" rel="noreferrer">
+          source code <Icon name="github" size={17} />
+        </a>
+        <span class="status">{project.data.status}</span>
+      </div>
+    </header>
+
+    <div class="project-layout">
+      <div class="prose">
+        <Content />
+      </div>
+      <aside>
+        <strong>technology</strong>
+        <div class="tech-list">
+          {
+            project.data.technologies.map((technology: string) => (
+              <span class="pill">{technology}</span>
+            ))
+          }
+        </div>
+        {
+          headings.length > 0 && (
+            <div class="mini-toc">
+              <strong>on this page</strong>
+              {headings.map((heading: any) => (
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              ))}
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.4rem;
+    color: var(--muted);
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+
+  .project-header {
+    border-left: 4px solid var(--accent);
+    padding-left: 1.4rem;
+  }
+
+  .project-header.accent-ink {
+    border-color: var(--ink-accent);
+  }
+
+  .project-header.accent-stone {
+    border-color: var(--stone-accent);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 650;
+  }
+
+  .summary {
+    max-width: 700px;
+    color: var(--body-text);
+    font-size: 1.08rem;
+  }
+
+  .research-frame {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-width: 760px;
+    margin-top: 1.5rem;
+    border-block: 1px solid var(--border);
+  }
+
+  .research-frame > div {
+    padding: 1rem 1rem 1rem 0;
+  }
+
+  .research-frame > div + div {
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+  }
+
+  .research-frame span {
+    color: var(--faint);
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .research-frame p {
+    margin: 0.4rem 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.4rem;
+  }
+
+  .status {
+    color: var(--faint);
+    font-size: 0.8rem;
+  }
+
+  .project-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    gap: 3rem;
+  }
+
+  aside {
+    align-self: start;
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+  }
+
+  aside > strong,
+  .mini-toc > strong {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .mini-toc {
+    margin-top: 1.6rem;
+  }
+
+  .mini-toc a {
+    display: block;
+    margin: 0.35rem 0;
+    color: var(--muted);
+    min-height: 44px;
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 700px) {
+    .project-layout {
+      display: block;
+    }
+
+    aside {
+      margin-top: 2rem;
+    }
+
+    .research-frame {
+      grid-template-columns: 1fr;
+    }
+
+    .research-frame > div {
+      padding-inline: 0;
+    }
+
+    .research-frame > div + div {
+      border-top: 1px solid var(--border);
+      border-left: 0;
+    }
+  }
+</style>

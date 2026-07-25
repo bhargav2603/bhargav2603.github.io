@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#000000"/>
+      <stop offset="1" stop-color="#191715"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop stop-color="#F95C4B"/>
+      <stop offset=".62" stop-color="#E4DED2"/>
+      <stop offset="1" stop-color="#F6F4F1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1030" cy="110" r="300" fill="#F95C4B" opacity=".10"/>
+  <circle cx="1100" cy="570" r="270" fill="#E4DED2" opacity=".08"/>
+  <g fill="none" stroke="url(#line)" opacity=".55">
+    <ellipse cx="958" cy="315" rx="112" ry="248" stroke-width="3" transform="rotate(55 958 315)"/>
+    <ellipse cx="958" cy="315" rx="112" ry="248" stroke-width="3" transform="rotate(-55 958 315)"/>
+    <ellipse cx="958" cy="315" rx="112" ry="248" stroke-width="3"/>
+    <circle cx="958" cy="315" r="15" fill="#fff" stroke="none"/>
+  </g>
+  <text x="90" y="252" fill="#fff" font-family="Inter,Segoe UI,sans-serif" font-size="76" font-weight="300">Bhargav <tspan font-weight="650">Krishna</tspan></text>
+  <text x="94" y="322" fill="#E4DED2" font-family="Inter,Segoe UI,sans-serif" font-size="30">Quantum Algorithms Researcher</text>
+  <rect x="94" y="368" width="310" height="5" rx="2" fill="url(#line)"/>
+  <text x="94" y="430" fill="#BDB4A7" font-family="Inter,Segoe UI,sans-serif" font-size="22">quantum algorithms · chemistry · scientific software</text>
+</svg>

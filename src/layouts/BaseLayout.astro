@@ -1,0 +1,234 @@
+---
+import "katex/dist/katex.min.css";
+import "@fontsource-variable/inter";
+import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import Icon from "../components/Icon.astro";
+import SearchModal from "../components/SearchModal.astro";
+import { siteConfig } from "../config";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+}
+
+const {
+  title,
+  description = siteConfig.description,
+  image = "/social-card.svg",
+  article = false,
+} = Astro.props;
+const pageTitle = title ? `${title} | ${siteConfig.name}` : `${siteConfig.name}`;
+const canonical = new URL(Astro.url.pathname, siteConfig.url);
+const socialImage = new URL(image, siteConfig.url);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <link rel="canonical" href={canonical} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.name} RSS`}
+      href="/rss.xml"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem("theme");
+        const dark =
+          saved === "dark" || (!saved && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top">
+      <Icon name="arrow" size={19} />
+    </button>
+    <SearchModal />
+    <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image">
+      <button
+        class="icon-button lightbox-close"
+        type="button"
+        data-image-lightbox-close
+        aria-label="Close expanded image"
+      >
+        <Icon name="close" />
+      </button>
+      <img data-image-lightbox-image alt="" />
+      <p data-image-lightbox-caption></p>
+    </dialog>
+
+    <script>
+      const root = document.documentElement;
+      const themeToggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      const mobileToggle = document.querySelector<HTMLButtonElement>("[data-mobile-toggle]");
+      const navLinks = document.querySelector<HTMLElement>("[data-nav-links]");
+      const progress = document.querySelector<HTMLElement>("[data-scroll-progress]");
+      const backToTop = document.querySelector<HTMLButtonElement>("[data-back-to-top]");
+      const searchDialog = document.querySelector<HTMLDialogElement>("[data-search-dialog]");
+      const searchInput = document.querySelector<HTMLInputElement>("[data-search-input]");
+      const searchResults = document.querySelector<HTMLElement>("[data-search-results]");
+      const searchStatus = document.querySelector<HTMLElement>("[data-search-status]");
+      const imageLightbox = document.querySelector<HTMLDialogElement>("[data-image-lightbox]");
+      const lightboxImage = document.querySelector<HTMLImageElement>("[data-image-lightbox-image]");
+      const lightboxCaption = document.querySelector<HTMLElement>("[data-image-lightbox-caption]");
+
+      const updateThemeLabel = () => {
+        themeToggle?.setAttribute(
+          "aria-label",
+          root.dataset.theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        );
+      };
+      updateThemeLabel();
+
+      themeToggle?.addEventListener("click", () => {
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        localStorage.setItem("theme", next);
+        updateThemeLabel();
+      });
+
+      mobileToggle?.addEventListener("click", () => {
+        const open = mobileToggle.getAttribute("aria-expanded") === "true";
+        mobileToggle.setAttribute("aria-expanded", String(!open));
+        navLinks?.classList.toggle("open", !open);
+      });
+
+      const updateScroll = () => {
+        const scrollable = document.documentElement.scrollHeight - innerHeight;
+        const ratio = scrollable > 0 ? scrollY / scrollable : 0;
+        if (progress) progress.style.transform = `scaleX(${ratio})`;
+        backToTop?.classList.toggle("visible", scrollY > 500);
+      };
+      addEventListener("scroll", updateScroll, { passive: true });
+      updateScroll();
+      backToTop?.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
+
+      const openSearch = () => {
+        searchDialog?.showModal();
+        setTimeout(() => searchInput?.focus(), 20);
+      };
+      document.querySelectorAll("[data-search-open]").forEach((button) => {
+        button.addEventListener("click", openSearch);
+      });
+      document.querySelector("[data-search-close]")?.addEventListener("click", () => {
+        searchDialog?.close();
+      });
+      searchDialog?.addEventListener("click", (event) => {
+        if (event.target === searchDialog) searchDialog.close();
+      });
+      addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          openSearch();
+        }
+        if (event.key === "Escape") {
+          searchDialog?.close();
+          imageLightbox?.close();
+          navLinks?.classList.remove("open");
+          mobileToggle?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      let pagefind: any;
+      const pagefindPath = "/pagefind/pagefind.js";
+      const runSearch = async () => {
+        const term = searchInput?.value.trim() ?? "";
+        if (!searchResults || !searchStatus) return;
+        if (term.length < 2) {
+          searchResults.innerHTML = "";
+          searchStatus.textContent = "Type at least two characters.";
+          return;
+        }
+        try {
+          pagefind ??= await import(/* @vite-ignore */ pagefindPath);
+          const response = await pagefind.search(term);
+          const items = await Promise.all(
+            response.results.slice(0, 8).map((item: any) => item.data()),
+          );
+          searchStatus.textContent = `${response.results.length} result${response.results.length === 1 ? "" : "s"}`;
+          searchResults.innerHTML = items
+            .map(
+              (item: any) => `
+                <a class="search-result" href="${item.url}">
+                  <strong>${item.meta.title ?? "Untitled"}</strong>
+                  <span>${item.excerpt ?? item.meta.description ?? ""}</span>
+                </a>`,
+            )
+            .join("");
+        } catch {
+          searchStatus.textContent =
+            "Search is generated during the production build. Use the deployed or preview build to search.";
+        }
+      };
+      searchInput?.addEventListener("input", runSearch);
+
+      navLinks?.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navLinks.classList.remove("open");
+          mobileToggle?.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      const openImage = (image: HTMLImageElement) => {
+        if (!imageLightbox || !lightboxImage || !lightboxCaption) return;
+        lightboxImage.src = image.currentSrc || image.src;
+        lightboxImage.alt = image.alt;
+        lightboxCaption.textContent =
+          image.closest("figure")?.querySelector("figcaption")?.textContent?.trim() ||
+          image.alt ||
+          "Expanded image";
+        imageLightbox.showModal();
+      };
+
+      document.querySelectorAll<HTMLImageElement>(".prose img").forEach((image) => {
+        image.classList.add("zoomable");
+        image.tabIndex = 0;
+        image.setAttribute("role", "button");
+        image.setAttribute("aria-label", `Expand image: ${image.alt || "article image"}`);
+        image.addEventListener("click", () => openImage(image));
+        image.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openImage(image);
+          }
+        });
+      });
+      document.querySelector("[data-image-lightbox-close]")?.addEventListener("click", () => {
+        imageLightbox?.close();
+      });
+      imageLightbox?.addEventListener("click", (event) => {
+        if (event.target === imageLightbox) imageLightbox.close();
+      });
+    </script>
+  </body>
+</html>

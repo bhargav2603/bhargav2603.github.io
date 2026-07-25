@@ -1,0 +1,77 @@
+---
+import { getCollection } from "astro:content";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { siteConfig } from "../../config";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="research & projects" description={siteConfig.description}>
+  <div class="page container" data-pagefind-body>
+    <header class="page-heading">
+      <p class="eyebrow">Quantum algorithms · Scientific software</p>
+      <h1>Research & projects</h1>
+      <p class="research-role">{siteConfig.role}</p>
+      <p>{siteConfig.positioning} {siteConfig.currentWork}</p>
+      <p class="broader-interests">{siteConfig.broaderInterests}</p>
+    </header>
+
+    <section class="projects-section" aria-labelledby="projects-heading">
+      <h2 id="projects-heading">Selected projects</h2>
+      <div class="card-grid projects-grid">
+        {
+          projects.map((project) => (
+            <div>
+              <ProjectCard id={project.id} data={project.data} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-heading h1 {
+    text-transform: none;
+  }
+
+  .research-role {
+    margin-bottom: 0.45rem !important;
+    color: var(--text) !important;
+    font-weight: 620;
+  }
+
+  .broader-interests {
+    color: var(--faint) !important;
+    font-size: 0.82rem !important;
+  }
+
+  .projects-section {
+    margin-top: 3.5rem;
+  }
+
+  .projects-section > h2 {
+    margin: 0 0 1.15rem;
+    font-size: 1.55rem;
+  }
+
+  .projects-grid > div {
+    display: flex;
+  }
+
+  .projects-grid > div:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 760px) {
+    .projects-grid > div:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
+</style>

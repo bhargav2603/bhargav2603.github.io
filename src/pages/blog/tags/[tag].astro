@@ -1,0 +1,36 @@
+---
+import { getCollection } from "astro:content";
+import BlogCard from "../../../components/BlogCard.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+  return tags.map((tag) => ({ params: { tag }, props: { tag } }));
+}
+
+const { tag } = Astro.props;
+const posts = (
+  await getCollection("blog", ({ data }) => !data.draft && data.tags.includes(tag))
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title={`tag: ${tag}`}>
+  <div class="page container" data-pagefind-body>
+    <header class="page-heading">
+      <p class="eyebrow">Blog tag</p>
+      <h1>{tag}</h1>
+      <p>{posts.length} post{posts.length === 1 ? "" : "s"} filed under this tag.</p>
+    </header>
+    <div class="blog-list">
+      {posts.map((post) => <BlogCard id={post.id} data={post.data} />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .blog-list {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

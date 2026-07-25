@@ -1,0 +1,718 @@
+---
+import { getCollection } from "astro:content";
+import Icon from "../../components/Icon.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const blogEntries = await getCollection("blog", ({ data }) => !data.draft);
+const posts = blogEntries.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const leadPost = posts.find((post) => post.data.featured) ?? posts[0];
+const remainingPosts = posts.filter((post) => post.id !== leadPost?.id);
+
+const topicNames = [
+  "quantum chemistry",
+  "VQE",
+  "Qiskit",
+  "research software",
+  "AI",
+  "benchmarking",
+];
+const topics = topicNames
+  .map((name) => ({
+    name,
+    count: posts.filter((post) => post.data.tags.includes(name)).length,
+  }))
+  .filter((topic) => topic.count > 0);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+---
+
+<BaseLayout
+  title="blog"
+  description="Notes on quantum software, chemistry, measurement, and research engineering."
+>
+  <div class="journal page container" data-pagefind-body>
+    <header class="journal-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Research journal</p>
+        <h1>Notes from<br />the work.</h1>
+        <p class="hero-intro">
+          Practical writing on quantum algorithms, computational chemistry, and the discipline of
+          building research software that can be tested and trusted.
+        </p>
+      </div>
+
+      <aside class="journal-index" aria-label="Journal overview">
+        <p class="index-label">Inside the journal</p>
+        <dl>
+          <div>
+            <dt>Published</dt>
+            <dd>{posts.length} essays</dd>
+          </div>
+          <div>
+            <dt>Focus</dt>
+            <dd>Quantum · Software</dd>
+          </div>
+          <div>
+            <dt>Approach</dt>
+            <dd>Practical · Verified</dd>
+          </div>
+        </dl>
+        <div class="journal-actions">
+          <a href="/blog/archive/">View archive <Icon name="arrow" size={15} /></a>
+          <a href="/rss.xml"><Icon name="rss" size={15} /> RSS</a>
+        </div>
+      </aside>
+    </header>
+
+    <nav class="topic-index" aria-label="Explore writing by subject">
+      <span class="topic-label">Explore by subject</span>
+      <div>
+        {
+          topics.map((topic) => (
+            <a href={`/blog/tags/${encodeURIComponent(topic.name)}/`}>
+              {topic.name}
+              <span aria-label={`${topic.count} articles`}>
+                {String(topic.count).padStart(2, "0")}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+
+    {
+      leadPost && (
+        <section class="featured-section" aria-labelledby="featured-heading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Selected work</p>
+              <h2 id="featured-heading">Featured research</h2>
+            </div>
+            <span>{formatDate(leadPost.data.pubDate)}</span>
+          </div>
+
+          <a
+            class="featured-story"
+            href={`/blog/${leadPost.id}/`}
+            aria-label={`Read ${leadPost.data.title}`}
+          >
+            <div class="featured-main">
+              <span class="story-category">{leadPost.data.category}</span>
+              <h3>{leadPost.data.title}</h3>
+              <p>{leadPost.data.description}</p>
+            </div>
+            <div class="featured-aside">
+              <span class="featured-number" aria-hidden="true">
+                01
+              </span>
+              <div class="featured-footer">
+                <span>{leadPost.data.readingTime ?? "Read article"}</span>
+                <span class="arrow-button" aria-hidden="true">
+                  <Icon name="arrow" size={20} />
+                </span>
+              </div>
+            </div>
+          </a>
+        </section>
+      )
+    }
+
+    <section class="latest-section" aria-labelledby="latest-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">The collection</p>
+          <h2 id="latest-heading">Latest writing</h2>
+        </div>
+        <span>{String(remainingPosts.length).padStart(2, "0")} articles</span>
+      </div>
+
+      <div class="story-list">
+        {
+          remainingPosts.map((post, index) => (
+            <article class="story-row">
+              <a href={`/blog/${post.id}/`} aria-label={`Read ${post.data.title}`}>
+                <span class="story-number" aria-hidden="true">
+                  {String(index + 2).padStart(2, "0")}
+                </span>
+                <div class="story-content">
+                  <div class="story-meta">
+                    <span>{post.data.category}</span>
+                    <time datetime={post.data.pubDate.toISOString()}>
+                      {formatDate(post.data.pubDate)}
+                    </time>
+                    <span>{post.data.readingTime ?? "Read article"}</span>
+                  </div>
+                  <h3>{post.data.title}</h3>
+                  <p>{post.data.description}</p>
+                  <div class="story-tags" aria-label="Article subjects">
+                    {post.data.tags.slice(0, 3).map((tag) => (
+                      <span>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <span class="row-arrow" aria-hidden="true">
+                  <Icon name="arrow" size={19} />
+                </span>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <footer class="journal-footer">
+      <p>Looking for a specific note?</p>
+      <a href="/blog/archive/">Browse the complete archive <Icon name="arrow" size={16} /></a>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .journal {
+    padding-top: 0;
+  }
+
+  .journal-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: clamp(3rem, 8vw, 6.5rem);
+    align-items: end;
+    border-bottom: 1px solid var(--border);
+    padding: clamp(4rem, 9vw, 7.5rem) 0 clamp(3rem, 7vw, 5rem);
+  }
+
+  .hero-copy {
+    max-width: 650px;
+  }
+
+  .hero-copy h1 {
+    max-width: 720px;
+    margin: 0;
+    font-size: clamp(3.8rem, 9.5vw, 7.2rem);
+    font-weight: 610;
+    line-height: 0.86;
+    letter-spacing: -0.075em;
+  }
+
+  .hero-intro {
+    max-width: 620px;
+    margin: 2.1rem 0 0;
+    color: var(--body-text);
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
+    line-height: 1.7;
+  }
+
+  .journal-index {
+    border-left: 1px solid var(--border);
+    padding-left: 1.5rem;
+  }
+
+  .index-label {
+    margin-bottom: 1.15rem;
+    color: var(--faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .journal-index dl {
+    margin: 0;
+  }
+
+  .journal-index dl div {
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 0;
+  }
+
+  .journal-index dt {
+    color: var(--faint);
+    font-size: 0.72rem;
+  }
+
+  .journal-index dd {
+    margin: 0.1rem 0 0;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 560;
+  }
+
+  .journal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.1rem;
+  }
+
+  .journal-actions a,
+  .journal-footer a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .topic-index {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    border-bottom: 1px solid var(--border);
+    padding: 1.35rem 0;
+  }
+
+  .topic-label {
+    padding-top: 0.65rem;
+    color: var(--faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .topic-index > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+
+  .topic-index a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-transform: capitalize;
+  }
+
+  .topic-index a span {
+    color: var(--faint);
+    font-size: 0.66rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .topic-index a:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .featured-section,
+  .latest-section {
+    padding-top: clamp(4rem, 8vw, 6.5rem);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-heading .eyebrow {
+    margin-bottom: 0.35rem;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    font-weight: 590;
+  }
+
+  .section-heading > span {
+    padding-bottom: 0.25rem;
+    color: var(--faint);
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .featured-story {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(190px, 0.55fr);
+    min-height: 390px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--accent-fill);
+    color: var(--bg);
+    text-decoration: none;
+  }
+
+  .featured-story:hover {
+    color: var(--bg);
+    text-decoration: none;
+  }
+
+  .featured-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(1.6rem, 5vw, 3.4rem);
+  }
+
+  .story-category {
+    align-self: flex-start;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.68rem;
+    font-weight: 680;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .featured-main h3 {
+    max-width: 690px;
+    margin: auto 0 1rem;
+    color: inherit;
+    font-size: clamp(2rem, 5.4vw, 3.8rem);
+    font-weight: 570;
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+  }
+
+  .featured-main p {
+    max-width: 650px;
+    margin: 0;
+    color: inherit;
+    font-size: 0.92rem;
+    opacity: 0.74;
+  }
+
+  .featured-aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-left: 1px solid color-mix(in srgb, var(--bg) 22%, transparent);
+    padding: clamp(1.5rem, 3vw, 2.1rem);
+  }
+
+  .featured-number {
+    align-self: flex-end;
+    font-size: clamp(3.5rem, 8vw, 6.2rem);
+    font-weight: 250;
+    line-height: 0.8;
+    letter-spacing: -0.08em;
+    opacity: 0.2;
+  }
+
+  .featured-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: inherit;
+    font-size: 0.78rem;
+  }
+
+  .arrow-button {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    transition: transform 180ms ease;
+  }
+
+  .story-list {
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .story-row {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .story-row > a {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) 44px;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: start;
+    padding: 1.8rem 0;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .story-row > a::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0.45rem -1rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    content: "";
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .story-row > a:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .story-number {
+    padding-top: 0.15rem;
+    color: var(--faint);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .story-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.55rem;
+    color: var(--faint);
+    font-size: 0.7rem;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
+  .story-meta span:first-child {
+    color: var(--text);
+    font-weight: 680;
+  }
+
+  .story-content h3 {
+    max-width: 760px;
+    margin: 0 0 0.55rem;
+    font-size: clamp(1.3rem, 2.7vw, 1.75rem);
+    font-weight: 580;
+    line-height: 1.2;
+  }
+
+  .story-content > p {
+    max-width: 710px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .story-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.85rem;
+    margin-top: 0.85rem;
+  }
+
+  .story-tags span {
+    color: var(--faint);
+    font-size: 0.7rem;
+  }
+
+  .story-tags span::before {
+    content: "#";
+  }
+
+  .row-arrow {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .journal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 4rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+  }
+
+  .journal-footer p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (hover: hover) {
+    .featured-story:hover .arrow-button {
+      transform: translate(3px, -3px);
+    }
+
+    .story-row > a:hover {
+      color: var(--text);
+    }
+
+    .story-row > a:hover::before {
+      opacity: 1;
+    }
+
+    .story-row > a:hover .row-arrow {
+      transform: translate(3px, -3px);
+      border-color: var(--border-strong);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .featured-story .arrow-button,
+    .story-row .row-arrow,
+    .story-row > a::before {
+      transition: none;
+    }
+
+    .featured-story:hover .arrow-button,
+    .story-row > a:hover .row-arrow {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .journal-hero {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: start;
+      padding-top: 4.5rem;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(3.5rem, 16vw, 6.2rem);
+    }
+
+    .journal-index {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1.5rem;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      border-left: 0;
+      padding: 1.25rem 0 0;
+    }
+
+    .index-label {
+      grid-column: 1 / -1;
+    }
+
+    .journal-actions {
+      align-content: end;
+      margin-top: 0;
+    }
+
+    .topic-index {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+
+    .featured-story {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-main {
+      min-height: 340px;
+    }
+
+    .featured-aside {
+      flex-direction: row;
+      align-items: center;
+      border-top: 1px solid color-mix(in srgb, var(--bg) 22%, transparent);
+      border-left: 0;
+    }
+
+    .featured-number {
+      align-self: auto;
+      font-size: 2.8rem;
+    }
+
+    .featured-footer {
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .journal-hero {
+      padding-top: 3.5rem;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(3.2rem, 17vw, 4.8rem);
+    }
+
+    .hero-intro {
+      margin-top: 1.5rem;
+    }
+
+    .journal-index {
+      display: block;
+    }
+
+    .journal-actions {
+      margin-top: 0.8rem;
+    }
+
+    .topic-index > div {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 1rem;
+    }
+
+    .section-heading {
+      align-items: start;
+    }
+
+    .section-heading > span {
+      padding-top: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .featured-main {
+      min-height: 390px;
+    }
+
+    .featured-main h3 {
+      font-size: clamp(1.9rem, 10vw, 2.65rem);
+    }
+
+    .featured-main p {
+      font-size: 0.86rem;
+    }
+
+    .featured-aside {
+      padding-block: 1.15rem;
+    }
+
+    .featured-footer > span:first-child {
+      display: none;
+    }
+
+    .story-row > a {
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 0.7rem;
+      padding: 1.45rem 0;
+    }
+
+    .story-content > p {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    .row-arrow {
+      display: none;
+    }
+
+    .journal-footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+  }
+</style>
