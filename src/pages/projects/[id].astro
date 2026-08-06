@@ -16,7 +16,6 @@ const { Content, headings } = await render(project);
   <article class="page container" data-pagefind-body>
     <a class="back-link" href="/projects/">← projects</a>
     <header class:list={["project-header", `accent-${project.data.accent}`]}>
-      <p class="eyebrow">{project.data.category}</p>
       <h1>{project.data.title}</h1>
       <p class="summary">{project.data.summary}</p>
       <div class="research-frame">
@@ -33,7 +32,6 @@ const { Content, headings } = await render(project);
         <a class="button" href={project.data.repoUrl} target="_blank" rel="noreferrer">
           source code <Icon name="github" size={17} />
         </a>
-        <span class="status">{project.data.status}</span>
       </div>
     </header>
 
@@ -135,11 +133,6 @@ const { Content, headings } = await render(project);
     align-items: center;
     gap: 1rem;
     margin-top: 1.4rem;
-  }
-
-  .status {
-    color: var(--faint);
-    font-size: 0.8rem;
   }
 
   .project-layout {

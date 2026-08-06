@@ -10,7 +10,7 @@ toc: true
 readingTime: "6 min read"
 ---
 
-Before focusing on quantum algorithms, I worked in Cybersecurity Risk Consulting at PwC India. The technical domains are different, but the habits transfer surprisingly well.
+Before focusing on quantum algorithms, I worked as an Associate in Risk Consulting at PwC India. The technical domains are different, but the habits transfer surprisingly well.
 
 Cybersecurity taught me that a large volume of data is not the same as evidence, a control is not useful merely because it exists, and a system should be designed with failure in mind. Those ideas now shape how I build research software.
 

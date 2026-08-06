@@ -8,11 +8,11 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
 const years = [...new Set(posts.map((post) => post.data.pubDate.getFullYear()))];
 ---
 
-<BaseLayout title="blog archive">
+<BaseLayout title="Blog archive">
   <div class="page container" data-pagefind-body>
     <header class="page-heading">
       <p class="eyebrow">Every note</p>
-      <h1>blog archive</h1>
+      <h1>Blog archive</h1>
       <p>Research notes arranged in reverse chronological order.</p>
     </header>
 

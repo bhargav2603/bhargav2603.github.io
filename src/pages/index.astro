@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import profileImage from "../assets/bhargav-profile.png";
 import Icon from "../components/Icon.astro";
+import LearningNote from "../components/LearningNote.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import SocialLinks from "../components/SocialLinks.astro";
 import { siteConfig } from "../config";
@@ -11,23 +12,26 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 const projects = (await getCollection("projects"))
   .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 2);
+
+const recentPosts = (await getCollection("blog", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const recentInterests = (await getCollection("interests"))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
 ---
 
 <BaseLayout>
   <div class="page container" data-pagefind-body>
     <section class="about-hero">
       <div class="about-copy">
-        <p class="eyebrow">Quantum algorithms · Scientific software</p>
         <h1>Bhargav <strong>Krishna</strong></h1>
         <p class="subtitle">{siteConfig.role}</p>
         <div class="bio">
           <p>{siteConfig.positioning}</p>
-          <p>{siteConfig.currentWork}</p>
-          <p>
-            Previously, I worked at PwC India in Cybersecurity Risk Consulting, where I analyzed
-            security data and learned to communicate technical evidence clearly under operational
-            constraints.
-          </p>
+          <p>{siteConfig.focus}</p>
+          <p>{siteConfig.background}</p>
         </div>
         <p class="broader-interests">{siteConfig.broaderInterests}</p>
         <div class="hero-actions">
@@ -37,24 +41,26 @@ const projects = (await getCollection("projects"))
         </div>
         <SocialLinks />
       </div>
-      <figure class="profile">
-        <Image
-          src={profileImage}
-          alt="Professional portrait of Bhargav Krishna"
-          widths={[320, 480, 640]}
-          sizes="(max-width: 700px) 72vw, 300px"
-          format="webp"
-          quality={84}
-          loading="eager"
-        />
-      </figure>
+      <div class="hero-side">
+        <figure class="profile">
+          <Image
+            src={profileImage}
+            alt="Professional portrait of Bhargav Krishna"
+            widths={[320, 480, 640]}
+            sizes="(max-width: 700px) 72vw, 300px"
+            format="webp"
+            quality={84}
+            loading="eager"
+          />
+        </figure>
+        <LearningNote />
+      </div>
     </section>
 
     <section class="selected-work">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Selected work</p>
-          <h2>Research projects</h2>
+          <h2>Projects</h2>
         </div>
         <a href="/projects/">All projects <Icon name="arrow" size={16} /></a>
       </div>
@@ -67,13 +73,64 @@ const projects = (await getCollection("projects"))
       </div>
     </section>
 
+    <div class="mini-grid">
+      <section aria-labelledby="blogs-heading">
+        <div class="mini-head">
+          <h2 id="blogs-heading">Blogs</h2>
+          <a href="/blog/">All posts <Icon name="arrow" size={15} /></a>
+        </div>
+        <ul class="mini-list">
+          {
+            recentPosts.map((post) => (
+              <li>
+                <a href={`/blog/${post.id}/`}>
+                  <span class="mini-main">
+                    <span class="mini-title">{post.data.title}</span>
+                    <span class="mini-meta">
+                      {post.data.category} · {post.data.readingTime ?? "read"}
+                    </span>
+                  </span>
+                  <span class="mini-arrow" aria-hidden="true">
+                    <Icon name="arrow" size={15} />
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section aria-labelledby="interests-heading">
+        <div class="mini-head">
+          <h2 id="interests-heading">Interests</h2>
+          <a href="/interests/">All interests <Icon name="arrow" size={15} /></a>
+        </div>
+        <ul class="mini-list">
+          {
+            recentInterests.map((interest) => (
+              <li>
+                <a href={interest.data.url} target="_blank" rel="noreferrer">
+                  <span class="mini-main">
+                    <span class="mini-title">{interest.data.title}</span>
+                    <span class="mini-meta">
+                      {interest.data.creator} · {interest.data.category}
+                    </span>
+                  </span>
+                  <span class="mini-arrow" aria-hidden="true">
+                    <Icon name="external" size={14} />
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
     <section class="contact-note">
       <p class="eyebrow">Contact</p>
-      <h2>Interested in quantum algorithms or scientific software?</h2>
-      <p>
-        I'm open to research conversations, technical discussions, collaborations, and opportunities
-        where careful experimentation and reliable software matter.
-      </p>
+      <h2>Get in touch</h2>
+      <p>Always happy to connect and have a discussion — feel free to reach out.</p>
       <div class="contact-links" aria-label="Contact links">
         <a
           href={siteConfig.linkedin}
@@ -141,6 +198,11 @@ const projects = (await getCollection("projects"))
     margin: 1.55rem 0 1.2rem;
   }
 
+  .hero-side {
+    display: grid;
+    gap: 1.1rem;
+  }
+
   .profile {
     margin: 0;
   }
@@ -182,10 +244,122 @@ const projects = (await getCollection("projects"))
     font-size: 0.875rem;
   }
 
-  .contact-note {
-    margin-top: 4.5rem;
+  .mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    margin-top: 4rem;
+  }
+
+  .mini-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .mini-head h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 620;
+  }
+
+  .mini-head a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .mini-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mini-list li + li {
     border-top: 1px solid var(--border);
-    padding-top: 2rem;
+  }
+
+  .mini-list a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    margin-inline: -0.6rem;
+    border-radius: var(--radius);
+    padding: 0.7rem 0.6rem;
+    color: var(--text);
+    transition: background 160ms ease;
+  }
+
+  .mini-main {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .mini-title {
+    font-size: 0.92rem;
+    font-weight: 560;
+    line-height: 1.35;
+    /* Half-width column; justifying these short titles stretches the words. */
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  .mini-meta {
+    color: var(--faint);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+  }
+
+  .mini-arrow {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    color: var(--faint);
+    opacity: 0;
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+  }
+
+  @media (hover: hover) {
+    .mini-list a:hover {
+      background: var(--surface);
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .mini-list a:hover .mini-arrow {
+      opacity: 1;
+      transform: translateX(2px);
+      color: var(--accent);
+    }
+  }
+
+  .mini-list a:focus-visible .mini-arrow {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mini-list a,
+    .mini-arrow {
+      transition: none;
+    }
+  }
+
+  .contact-note {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
   }
 
   .contact-note h2 {
@@ -229,6 +403,16 @@ const projects = (await getCollection("projects"))
 
     .profile {
       max-width: 260px;
+    }
+
+    .hero-side {
+      max-width: 420px;
+    }
+
+    .mini-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-top: 3rem;
     }
   }
 </style>

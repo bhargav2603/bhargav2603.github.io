@@ -6,7 +6,6 @@ interface Props {
   data: {
     title: string;
     description: string;
-    pubDate: Date;
     tags: string[];
     category: string;
     readingTime?: string;
@@ -14,17 +13,11 @@ interface Props {
 }
 
 const { id, data } = Astro.props;
-const date = data.pubDate.toLocaleDateString("en-IN", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 ---
 
 <article class="blog-card card">
   <div class="blog-card-top">
     <span class="eyebrow">{data.category}</span>
-    <time datetime={data.pubDate.toISOString()}>{date}</time>
   </div>
   <h2><a href={`/blog/${id}/`}>{data.title}</a></h2>
   <p>{data.description}</p>
@@ -32,16 +25,30 @@ const date = data.pubDate.toLocaleDateString("en-IN", {
     <div class="article-tags">
       {data.tags.map((tag) => <span class="pill">{tag}</span>)}
     </div>
-    <a class="read-link" href={`/blog/${id}/`}>
+    <span class="read-link">
       {data.readingTime ?? "read"}
       <Icon name="arrow" size={16} />
-    </a>
+    </span>
   </div>
 </article>
 
 <style>
   .blog-card {
+    position: relative;
     padding: 1.5rem;
+    transition:
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+
+  /* Stretched link: the title anchor covers the whole card, so a click
+     anywhere opens the post while keeping exactly one link for screen
+     readers and keyboard users. */
+  .blog-card h2 a::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    content: "";
   }
 
   .blog-card-top,
@@ -50,11 +57,6 @@ const date = data.pubDate.toLocaleDateString("en-IN", {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-  }
-
-  .blog-card-top time {
-    color: var(--faint);
-    font-size: 0.8rem;
   }
 
   .blog-card h2 {
@@ -87,7 +89,29 @@ const date = data.pubDate.toLocaleDateString("en-IN", {
     align-items: center;
     gap: 0.3rem;
     min-height: 44px;
+    color: var(--muted);
     font-size: 0.875rem;
+  }
+
+  @media (hover: hover) {
+    .blog-card:hover {
+      border-color: var(--border-strong);
+      background: var(--surface);
+    }
+
+    .blog-card:hover h2 a {
+      color: var(--accent);
+    }
+
+    .blog-card:hover .read-link {
+      color: var(--accent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-card {
+      transition: none;
+    }
   }
 
   @media (max-width: 540px) {

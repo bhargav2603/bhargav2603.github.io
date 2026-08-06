@@ -136,6 +136,8 @@ const socialImage = new URL(image, siteConfig.url);
       const openSearch = () => {
         searchDialog?.showModal();
         setTimeout(() => searchInput?.focus(), 20);
+        if (searchInput) searchInput.value = "";
+        showSuggestions();
       };
       document.querySelectorAll("[data-search-open]").forEach((button) => {
         button.addEventListener("click", openSearch);
@@ -159,38 +161,147 @@ const socialImage = new URL(image, siteConfig.url);
         }
       });
 
-      let pagefind: any;
-      const pagefindPath = "/pagefind/pagefind.js";
-      const runSearch = async () => {
-        const term = searchInput?.value.trim() ?? "";
-        if (!searchResults || !searchStatus) return;
-        if (term.length < 2) {
-          searchResults.innerHTML = "";
-          searchStatus.textContent = "Type at least two characters.";
-          return;
-        }
+      type SearchEntry = {
+        title: string;
+        description: string;
+        url: string;
+        section: string;
+        keywords: string[];
+      };
+      const readJson = (selector: string): SearchEntry[] => {
+        const node = document.querySelector(selector);
         try {
-          pagefind ??= await import(/* @vite-ignore */ pagefindPath);
-          const response = await pagefind.search(term);
-          const items = await Promise.all(
-            response.results.slice(0, 8).map((item: any) => item.data()),
-          );
-          searchStatus.textContent = `${response.results.length} result${response.results.length === 1 ? "" : "s"}`;
-          searchResults.innerHTML = items
-            .map(
-              (item: any) => `
-                <a class="search-result" href="${item.url}">
-                  <strong>${item.meta.title ?? "Untitled"}</strong>
-                  <span>${item.excerpt ?? item.meta.description ?? ""}</span>
-                </a>`,
-            )
-            .join("");
+          return node?.textContent ? JSON.parse(node.textContent) : [];
         } catch {
-          searchStatus.textContent =
-            "Search is generated during the production build. Use the deployed or preview build to search.";
+          return [];
         }
       };
-      searchInput?.addEventListener("input", runSearch);
+      const searchIndex = readJson("[data-search-index]");
+      const suggestions = readJson("[data-search-suggestions]");
+
+      const escapeHtml = (value: string) =>
+        value.replace(
+          /[&<>"']/g,
+          (char) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char,
+        );
+
+      // Wrap each matched term so the user sees why a result came back.
+      const highlight = (value: string, terms: string[]) => {
+        let output = escapeHtml(value);
+        for (const term of terms) {
+          if (term.length < 1) continue;
+          const pattern = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+          output = output.replace(pattern, "<mark>$1</mark>");
+        }
+        return output;
+      };
+
+      // Field-weighted scoring: a title hit outranks a description hit, and an
+      // exact or prefix match outranks a match buried mid-string.
+      const scoreEntry = (entry: SearchEntry, terms: string[]) => {
+        const title = entry.title.toLowerCase();
+        const description = entry.description.toLowerCase();
+        const keywords = entry.keywords.join(" ").toLowerCase();
+        const section = entry.section.toLowerCase();
+        let total = 0;
+        for (const term of terms) {
+          let score = 0;
+          if (title === term) score = 120;
+          else if (title.startsWith(term)) score = 80;
+          else if (title.includes(term)) score = 55;
+          if (keywords.split(/\s+/).includes(term)) score = Math.max(score, 45);
+          else if (keywords.includes(term)) score = Math.max(score, 30);
+          if (description.includes(term)) score = Math.max(score, 18);
+          if (section.includes(term)) score = Math.max(score, 12);
+          if (score === 0) return 0; // every term must match somewhere
+          total += score;
+        }
+        return total;
+      };
+
+      let activeIndex = -1;
+      let currentResults: SearchEntry[] = [];
+
+      const renderResults = (entries: SearchEntry[], terms: string[]) => {
+        if (!searchResults) return;
+        currentResults = entries;
+        activeIndex = entries.length > 0 ? 0 : -1;
+        searchResults.innerHTML = entries
+          .map(
+            (entry, index) => `
+              <a class="search-result" role="option" aria-selected="${index === 0}" href="${entry.url}" data-index="${index}">
+                ${highlight(entry.title, terms)}
+              </a>`,
+          )
+          .join("");
+        updateActive();
+      };
+
+      const updateActive = () => {
+        const nodes = searchResults?.querySelectorAll<HTMLAnchorElement>(".search-result");
+        nodes?.forEach((node, index) => {
+          const active = index === activeIndex;
+          node.classList.toggle("active", active);
+          node.setAttribute("aria-selected", String(active));
+          if (active) node.scrollIntoView({ block: "nearest" });
+        });
+      };
+
+      const showSuggestions = () => {
+        if (!searchStatus) return;
+        searchStatus.textContent = "Suggested";
+        renderResults(suggestions, []);
+      };
+
+      const runSearch = () => {
+        const raw = searchInput?.value.trim() ?? "";
+        if (!searchResults || !searchStatus) return;
+        if (raw.length === 0) {
+          showSuggestions();
+          return;
+        }
+        const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+        const matches = searchIndex
+          .map((entry) => ({ entry, score: scoreEntry(entry, terms) }))
+          .filter((item) => item.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 10)
+          .map((item) => item.entry);
+
+        if (matches.length === 0) {
+          activeIndex = -1;
+          currentResults = [];
+          searchStatus.textContent = `No results for “${raw}”`;
+          searchResults.innerHTML = "";
+          return;
+        }
+        searchStatus.textContent = `${matches.length} result${matches.length === 1 ? "" : "s"}`;
+        renderResults(matches, terms);
+      };
+
+      let searchDebounce: number | undefined;
+      searchInput?.addEventListener("input", () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(runSearch, 80) as unknown as number;
+      });
+
+      searchInput?.addEventListener("keydown", (event) => {
+        if (currentResults.length === 0) return;
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          activeIndex = (activeIndex + 1) % currentResults.length;
+          updateActive();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          activeIndex = (activeIndex - 1 + currentResults.length) % currentResults.length;
+          updateActive();
+        } else if (event.key === "Enter") {
+          event.preventDefault();
+          const target = currentResults[activeIndex];
+          if (target) location.href = target.url;
+        }
+      });
 
       navLinks?.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => {

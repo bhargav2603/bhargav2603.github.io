@@ -148,7 +148,7 @@ For hardware experiments, I report:
 - final depth, two-qubit gate count, and layout;
 - shot count and mitigation method;
 - raw and mitigated results;
-- ideal noisy-free result for the same transpiled circuit;
+- ideal noise-free result for the same transpiled circuit;
 - repeated executions where practical.
 
 Cross-platform execution can add another check. A [Nature Communications study](https://www.nature.com/articles/s41467-022-34279-5) compared nominally identical states across different quantum-computing platforms using randomized measurements. Agreement does not prove correctness by itself, but disagreement reveals a problem that a single-platform test may miss.

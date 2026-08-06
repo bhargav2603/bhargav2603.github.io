@@ -1,5 +1,113 @@
 ---
+import { getCollection } from "astro:content";
 import Icon from "./Icon.astro";
+import { siteConfig } from "../config";
+
+type IndexEntry = {
+  title: string;
+  description: string;
+  url: string;
+  section: string;
+  keywords: string[];
+};
+
+const blog = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+const interests = (await getCollection("interests")).sort((a, b) => a.data.order - b.data.order);
+
+const pages: IndexEntry[] = [
+  {
+    title: "About",
+    description: siteConfig.positioning,
+    url: "/",
+    section: "Page",
+    keywords: ["home", "about", "bio", siteConfig.role],
+  },
+  {
+    title: "CV",
+    description: "Experience, education, leadership, and skills.",
+    url: "/cv/",
+    section: "Page",
+    keywords: ["cv", "resume", "experience", "education", "skills"],
+  },
+  {
+    title: "Research & Projects",
+    description: "Quantum algorithm work, benchmarks, and research prototypes.",
+    url: "/projects/",
+    section: "Page",
+    keywords: ["projects", "research", "work"],
+  },
+  {
+    title: "Blogs",
+    description: "Practical writing on the work I do and the things I learn.",
+    url: "/blog/",
+    section: "Page",
+    keywords: ["blog", "blogs", "writing", "notes", "essays"],
+  },
+  {
+    title: "Interests",
+    description: "Books, articles, people, music, and stories I return to.",
+    url: "/interests/",
+    section: "Page",
+    keywords: ["interests", "library", "books", "reading"],
+  },
+  {
+    title: "Repositories",
+    description: "Public code repositories.",
+    url: "/repositories/",
+    section: "Page",
+    keywords: ["github", "code", "repos", "repositories"],
+  },
+  {
+    title: "Blog archive",
+    description: "Every post, grouped by year.",
+    url: "/blog/archive/",
+    section: "Page",
+    keywords: ["archive", "all posts"],
+  },
+];
+
+const searchIndex: IndexEntry[] = [
+  ...pages,
+  ...projects.map((project) => ({
+    title: project.data.title,
+    description: project.data.summary,
+    url: `/projects/${project.id}/`,
+    section: "Project",
+    keywords: [project.data.shortTitle, ...project.data.technologies],
+  })),
+  ...blog.map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    url: `/blog/${post.id}/`,
+    section: "Writing",
+    keywords: [post.data.category, ...post.data.tags],
+  })),
+  ...interests.map((interest) => ({
+    title: interest.data.title,
+    description: interest.data.note,
+    url: interest.data.url,
+    section: "Interest",
+    keywords: [interest.data.creator, interest.data.category],
+  })),
+];
+
+// Shown when the input is empty: the pages people actually want, plus the
+// three most recent posts so the panel is never a dead end.
+const suggestions: IndexEntry[] = [
+  pages[1],
+  pages[2],
+  pages[3],
+  ...blog.slice(0, 3).map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    url: `/blog/${post.id}/`,
+    section: "Writing",
+    keywords: [],
+  })),
+];
 ---
 
 <dialog class="search-dialog" data-search-dialog data-pagefind-ignore>
@@ -11,13 +119,35 @@ import Icon from "./Icon.astro";
         placeholder="Search posts, projects, CV, and interests…"
         aria-label="Search site"
         autocomplete="off"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="search-results"
+        aria-autocomplete="list"
         data-search-input
       />
       <button class="icon-button" type="button" data-search-close aria-label="Close search">
         <Icon name="close" />
       </button>
     </div>
-    <p class="search-status" data-search-status>Start typing to search the site.</p>
-    <div class="search-results" data-search-results></div>
+    <p class="search-status" data-search-status>Suggested</p>
+    <div class="search-results" id="search-results" role="listbox" data-search-results></div>
+    <div class="search-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
   </div>
 </dialog>
+
+<script
+  is:inline
+  type="application/json"
+  data-search-index
+  set:html={JSON.stringify(searchIndex)}
+/>
+<script
+  is:inline
+  type="application/json"
+  data-search-suggestions
+  set:html={JSON.stringify(suggestions)}
+/>

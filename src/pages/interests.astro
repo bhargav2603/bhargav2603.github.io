@@ -46,23 +46,17 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
 ---
 
 <BaseLayout
-  title="interests"
+  title="Interests"
   description="A curated library of books, articles, people, music, and stories that shape how Bhargav Krishna thinks."
 >
   <div class="page container" data-pagefind-body>
     <header class="interest-hero">
       <p class="eyebrow">A living library</p>
       <h1>A library of ideas<br />I return to.</h1>
-      <div class="hero-lower">
-        <p class="hero-intro">
-          A personal index of books, articles, people, music, and stories that sharpen my
-          curiosity—across science, technology, philosophy, and the arts.
-        </p>
-        <div class="collection-summary" aria-label="Collection summary">
-          <span><strong>{interests.length}</strong> entries</span>
-          <span><strong>{shelves.length}</strong> shelves</span>
-        </div>
-      </div>
+      <p class="hero-intro">
+        A personal index of books, articles, people, music, and stories that sharpen my
+        curiosity—across science, technology, philosophy, and the arts.
+      </p>
     </header>
 
     <nav class="collection-map" aria-label="Interest shelves">
@@ -185,53 +179,24 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
 
 <style>
   .interest-hero {
-    padding: clamp(1rem, 4vw, 3rem) 0 clamp(3rem, 7vw, 5.5rem);
+    padding: clamp(2.25rem, 4.5vw, 3.5rem) 0 clamp(1.75rem, 3.5vw, 2.75rem);
   }
 
   .interest-hero h1 {
     max-width: 850px;
     margin: 0;
-    font-size: clamp(3rem, 8vw, 5.8rem);
+    font-size: clamp(2.4rem, 5.2vw, 3.9rem);
     font-weight: 650;
     letter-spacing: -0.055em;
-    line-height: 0.96;
-  }
-
-  .hero-lower {
-    display: grid;
-    grid-template-columns: minmax(0, 620px) auto;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-top: clamp(2rem, 5vw, 3.5rem);
+    line-height: 0.98;
   }
 
   .hero-intro {
-    margin: 0;
+    max-width: 620px;
+    margin: 1.15rem 0 0;
     color: var(--body-text);
-    font-size: clamp(1rem, 2vw, 1.15rem);
-    line-height: 1.75;
-  }
-
-  .collection-summary {
-    display: flex;
-    flex: 0 0 auto;
-    gap: 1.5rem;
-    color: var(--faint);
-    font-size: 0.78rem;
-    white-space: nowrap;
-  }
-
-  .collection-summary span,
-  .collection-summary strong {
-    display: block;
-  }
-
-  .collection-summary strong {
-    margin-bottom: 0.1rem;
-    color: var(--text);
-    font-size: 1.45rem;
-    font-weight: 620;
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    line-height: 1.65;
   }
 
   .collection-map {
@@ -282,15 +247,15 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
   }
 
   .non-negotiables {
-    padding: clamp(4rem, 8vw, 6.5rem) 0;
+    padding: clamp(2.25rem, 4.5vw, 3.5rem) 0;
   }
 
   .section-intro {
     display: grid;
     grid-template-columns: 1fr minmax(280px, 470px);
     align-items: end;
-    gap: 3rem;
-    margin-bottom: 2rem;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .section-intro h2,
@@ -380,17 +345,17 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
   }
 
   .library {
-    padding-top: 1rem;
+    padding-top: 0;
   }
 
   .library-heading {
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
   }
 
   .shelf {
     scroll-margin-top: calc(var(--header-height) + 1rem);
     border-top: 1px solid var(--border-strong);
-    padding: 2rem 0 clamp(4rem, 8vw, 6rem);
+    padding: 1.5rem 0 clamp(2rem, 4vw, 3rem);
   }
 
   .shelf-header {
@@ -398,7 +363,7 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
     grid-template-columns: 56px minmax(0, 1fr) auto;
     align-items: start;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
   }
 
   .shelf-number {
@@ -531,13 +496,8 @@ const featured = interests.filter((interest) => featuredIds.has(interest.id));
   }
 
   @media (max-width: 720px) {
-    .hero-lower,
     .section-intro {
       grid-template-columns: 1fr;
-    }
-
-    .collection-summary {
-      justify-self: start;
     }
 
     .featured-grid {

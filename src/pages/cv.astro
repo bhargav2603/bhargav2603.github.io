@@ -9,15 +9,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <div class="page container" data-pagefind-body>
     <header class="cv-header">
       <div>
-        <p class="eyebrow">Curriculum vitae</p>
         <h1>CV</h1>
         <p class="cv-role">{siteConfig.role}</p>
-        <p>{siteConfig.positioning} {siteConfig.currentWork}</p>
-        <p class="broader-interests">{siteConfig.broaderInterests}</p>
       </div>
-      <a class="button" href={siteConfig.resume} target="_blank" rel="noreferrer">
-        Download PDF <Icon name="download" size={17} />
-      </a>
+      <div class="cv-actions">
+        <a class="button" href={siteConfig.resume} target="_blank" rel="noreferrer">
+          View CV <Icon name="external" size={16} />
+        </a>
+        <a class="button secondary" href={siteConfig.resume} download="Bhargav-Krishna-CV.pdf">
+          Download <Icon name="download" size={17} />
+        </a>
+      </div>
     </header>
 
     <div class="contact-strip">
@@ -76,7 +78,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </section>
 
     <section class="cv-section">
-      <h2>Leadership</h2>
+      <h2>Leadership experience</h2>
       <div class="timeline compact">
         {
           cv.leadership.map((item) => (
@@ -85,7 +87,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
               <div class="entry">
                 <h3>{item.role}</h3>
                 <p class="organization">{item.organization}</p>
-                <p>{item.details}</p>
+                <ul>
+                  {item.bullets.map((bullet) => (
+                    <li>{bullet}</li>
+                  ))}
+                </ul>
               </div>
             </article>
           ))
@@ -95,7 +101,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
     <section class="cv-section two-column-section">
       <div>
-        <h2>Skills</h2>
+        <h2>Analytical and professional skills</h2>
         {
           cv.skills.map((skill) => (
             <div class="skill-group">
@@ -110,20 +116,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         }
       </div>
       <div>
-        <h2>Certifications</h2>
-        <div class="cert-list">
-          {
-            cv.certifications.map((certificate) => (
-              <a href={certificate.url} target="_blank" rel="noreferrer">
-                <strong>{certificate.name}</strong>
-                <span>{certificate.issuer}</span>
-                <Icon name="external" size={15} />
-              </a>
-            ))
-          }
-        </div>
-
-        <h2 class="interests-heading">Interests</h2>
+        <h2>Additional information</h2>
         <ul class="interest-list">{cv.interests.map((interest) => <li>{interest}</li>)}</ul>
       </div>
     </section>
@@ -154,20 +147,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .cv-header .cv-role {
-    margin-bottom: 0.45rem;
+    margin-bottom: 0;
     color: var(--text);
     font-size: 1rem;
     font-weight: 620;
   }
 
-  .cv-header .broader-interests {
-    margin-top: 0.65rem;
-    color: var(--faint);
-    font-size: 0.82rem;
-  }
-
-  .cv-header .button {
+  .cv-actions {
+    display: flex;
     flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
 
   .contact-strip {
@@ -200,9 +190,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .period {
-    color: var(--faint);
+    padding-top: 0.15rem;
+    color: var(--text);
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 0.78rem;
+    font-size: 0.84rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
   }
 
   .entry h3 {
@@ -258,43 +252,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     gap: 0.35rem;
   }
 
-  .cert-list {
-    display: grid;
-    gap: 0.6rem;
-  }
-
-  .cert-list a {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    min-height: 52px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.55rem;
-  }
-
-  .cert-list strong,
-  .cert-list span {
-    display: block;
-  }
-
-  .cert-list strong {
-    color: var(--text);
-    font-size: 0.9rem;
-  }
-
-  .cert-list span {
-    color: var(--faint);
-    font-size: 0.78rem;
-  }
-
-  .cert-list :global(svg) {
-    grid-row: 1 / 3;
-    grid-column: 2;
-  }
-
-  .interests-heading {
-    margin-top: 2.2rem !important;
-  }
-
   .interest-list {
     color: var(--body-text);
     font-size: 0.9rem;
@@ -306,7 +263,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       display: block;
     }
 
-    .cv-header .button {
+    .cv-actions {
       margin-top: 1rem;
     }
 

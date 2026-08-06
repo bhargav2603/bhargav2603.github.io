@@ -9,8 +9,8 @@ const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWit
 <header class="site-header" data-pagefind-ignore>
   <nav class="navbar container" aria-label="Primary navigation">
     <a class="brand" href="/" aria-label={`${siteConfig.name} home`}>
-      <span>{siteConfig.givenName}</span>
-      <strong>{siteConfig.familyName}</strong>
+      <span>{siteConfig.givenName.charAt(0)}</span>
+      <strong>{siteConfig.familyName.charAt(0)}</strong>
     </a>
 
     <button

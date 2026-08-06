@@ -153,6 +153,20 @@ p {
   text-align: justify;
 }
 
+/* Content list items are justified to match paragraphs. Navigation and other
+   UI lists opt back out below, where justification would stretch short labels. */
+li {
+  text-align: justify;
+}
+
+.nav-links li,
+.contact-links li,
+.tech-list li,
+.article-tags li,
+.story-tags li {
+  text-align: left;
+}
+
 ul,
 ol {
   padding-left: 1.3rem;
@@ -323,9 +337,12 @@ th {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: baseline;
   color: var(--text);
-  font-size: 1.3rem;
-  letter-spacing: -0.04em;
+  font-size: 1.85rem;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 
 .brand span {
@@ -333,7 +350,6 @@ th {
 }
 
 .brand strong {
-  margin-left: 0.28rem;
   font-weight: 650;
 }
 
@@ -575,29 +591,55 @@ th {
 
 .search-result {
   display: block;
+  overflow: hidden;
   border-radius: var(--radius);
-  padding: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  color: var(--text);
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.search-result:hover {
+.search-result:hover,
+.search-result.active {
   background: var(--surface);
+  color: var(--accent);
   text-decoration: none;
 }
 
-.search-result strong,
-.search-result span {
-  display: block;
+.search-result mark {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-fill) 26%, transparent);
+  color: inherit;
+  padding: 0 1px;
 }
 
-.search-result strong {
-  color: var(--text);
-  font-size: 0.95rem;
+.search-footer {
+  display: flex;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  padding: 0.55rem 1rem;
+  color: var(--faint);
+  font-size: 0.72rem;
 }
 
-.search-result span {
-  margin-top: 0.18rem;
-  color: var(--muted);
-  font-size: 0.875rem;
+.search-footer kbd {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-right: 0.25rem;
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 520px) {
+  .search-footer {
+    display: none;
+  }
 }
 
 .button {

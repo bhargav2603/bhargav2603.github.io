@@ -1,0 +1,59 @@
+---
+import Icon from "./Icon.astro";
+import { siteConfig } from "../config";
+
+interface Props {
+  label?: string;
+  body?: string;
+}
+
+const {
+  label = "Learning on the side",
+  body = "Quantum error correction. If you work in this area, I'd value any suggestions or pointers, and I'm always open to a conversation.",
+} = Astro.props;
+---
+
+<aside class="now-note" aria-label={label}>
+  <p class="now-label">{label}</p>
+  <p class="now-body">{body}</p>
+  <a href={`mailto:${siteConfig.email}`}>Get in touch <Icon name="arrow" size={15} /></a>
+</aside>
+
+<style>
+  .now-note {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-fill);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    background: var(--accent-soft);
+  }
+
+  .now-label {
+    margin: 0 0 0.3rem;
+    color: var(--faint);
+    font-size: 0.7rem;
+    font-weight: 620;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .now-body {
+    margin: 0 0 0.5rem;
+    color: var(--body-text);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    /* Column is ~250px; justifying this narrow opens rivers of white space. */
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  .now-note a {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 560;
+  }
+</style>
