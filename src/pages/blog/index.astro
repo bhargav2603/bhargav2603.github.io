@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import Icon from "../../components/Icon.astro";
 import LearningNote from "../../components/LearningNote.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { slugify } from "../../utils/slug";
 
 const blogEntries = await getCollection("blog", ({ data }) => !data.draft);
 const posts = blogEntries.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -24,7 +25,7 @@ const topics = [...new Set(posts.map((post) => post.data.category))]
 
 <BaseLayout
   title="Blogs"
-  description="Notes on quantum software, chemistry, measurement, and research engineering."
+  description="Practical writing on quantum algorithms, benchmarking, measurement, and research engineering."
 >
   <div class="journal page container" data-pagefind-body>
     <header class="journal-hero">
@@ -43,7 +44,7 @@ const topics = [...new Set(posts.map((post) => post.data.category))]
       <div>
         {
           topics.map((topic) => (
-            <a href={`/blog/category/${encodeURIComponent(topic.name)}/`}>
+            <a href={`/blog/category/${slugify(topic.name)}/`}>
               {topic.name}
               <span aria-label={`${topic.count} articles`}>
                 {String(topic.count).padStart(2, "0")}
@@ -66,9 +67,9 @@ const topics = [...new Set(posts.map((post) => post.data.category))]
                 <div class="story-content">
                   <div class="story-meta">
                     <span>{post.data.category}</span>
-                    <span>{post.data.readingTime ?? "Read article"}</span>
+                    <span>{post.data.readingTime ?? "Read"}</span>
                   </div>
-                  <h3>{post.data.title}</h3>
+                  <h2>{post.data.title}</h2>
                   <p>{post.data.description}</p>
                   <div class="story-tags" aria-label="Article subjects">
                     {post.data.tags.slice(0, 3).map((tag) => (
@@ -244,7 +245,9 @@ const topics = [...new Set(posts.map((post) => post.data.category))]
     font-weight: 680;
   }
 
-  .story-content h3 {
+  /* h2, not h3: the page goes h1 -> post titles, so skipping a level here
+     would break the heading outline for screen readers. */
+  .story-content h2 {
     max-width: 760px;
     margin: 0 0 0.55rem;
     font-size: clamp(1.3rem, 2.7vw, 1.75rem);

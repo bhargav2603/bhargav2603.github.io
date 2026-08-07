@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Icon from "../../components/Icon.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { slugify } from "../../utils/slug";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -20,12 +21,12 @@ const { Content, headings } = await render(post);
       <h1>{post.data.title}</h1>
       <p class="dek">{post.data.description}</p>
       <div class="article-meta">
-        <span>{post.data.readingTime ?? "research note"}</span>
+        <span>{post.data.readingTime ?? "Read"}</span>
       </div>
       <div class="article-tags">
         {
           post.data.tags.map((tag: string) => (
-            <a class="pill" href={`/blog/tags/${encodeURIComponent(tag)}/`}>
+            <a class="pill" href={`/blog/tags/${slugify(tag)}/`}>
               <Icon name="tag" size={12} /> {tag}
             </a>
           ))

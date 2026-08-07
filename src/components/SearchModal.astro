@@ -9,6 +9,8 @@ type IndexEntry = {
   url: string;
   section: string;
   keywords: string[];
+  /** Interests link to other people's sites; results flag that before you go. */
+  external?: boolean;
 };
 
 const blog = (await getCollection("blog", ({ data }) => !data.draft)).sort(
@@ -91,15 +93,19 @@ const searchIndex: IndexEntry[] = [
     url: interest.data.url,
     section: "Interest",
     keywords: [interest.data.creator, interest.data.category],
+    external: true,
   })),
 ];
 
 // Shown when the input is empty: the pages people actually want, plus the
-// three most recent posts so the panel is never a dead end.
+// three most recent posts so the panel is never a dead end. Looked up by URL
+// rather than array position, so reordering `pages` cannot silently change it.
+const suggested = ["/cv/", "/projects/", "/blog/"]
+  .map((url) => pages.find((page) => page.url === url))
+  .filter((page): page is IndexEntry => page !== undefined);
+
 const suggestions: IndexEntry[] = [
-  pages[1],
-  pages[2],
-  pages[3],
+  ...suggested,
   ...blog.slice(0, 3).map((post) => ({
     title: post.data.title,
     description: post.data.description,

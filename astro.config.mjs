@@ -8,9 +8,10 @@ export default defineConfig({
   site: "https://bhargav2603.github.io",
   output: "static",
   integrations: [
+    // Tag and category listings are thin, duplicative pages; keeping them out
+    // of the sitemap points crawlers at the posts themselves.
     sitemap({
-      filter: (page) =>
-        !["/publications/", "/teaching/", "/people/"].some((path) => page.includes(path)),
+      filter: (page) => !["/blog/tags/", "/blog/category/"].some((path) => page.includes(path)),
     }),
   ],
   markdown: {

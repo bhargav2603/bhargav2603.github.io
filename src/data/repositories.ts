@@ -19,14 +19,4 @@ export const repositoryFallbacks = [
     url: "https://github.com/bhargav2603/Tomography-",
     accent: "ink",
   },
-  {
-    slug: "protien-ligand",
-    name: "qbind",
-    description:
-      "SQD-corrected drug rescoring that quantifies the delta between quantum-corrected and classical rankings.",
-    language: "Python",
-    updatedAt: "2026-07-12T20:00:27Z",
-    url: "https://github.com/bhargav2603/protien-ligand",
-    accent: "stone",
-  },
 ] as const;

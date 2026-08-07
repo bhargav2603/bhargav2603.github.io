@@ -15,10 +15,12 @@ interface Props {
   article?: boolean;
 }
 
+// PNG, not SVG: LinkedIn, X, Slack, and WhatsApp all refuse to render SVG
+// preview images. Regenerate from social-card.svg with `npm run social-card`.
 const {
   title,
   description = siteConfig.description,
-  image = "/social-card.svg",
+  image = "/social-card.png",
   article = false,
 } = Astro.props;
 const pageTitle = title ? `${title} | ${siteConfig.name}` : `${siteConfig.name}`;
@@ -33,17 +35,23 @@ const socialImage = new URL(image, siteConfig.url);
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)" />
+    <!-- Single tag, kept in sync with the theme toggle by the script below.
+         Media-query variants would follow the OS instead of the user's choice. -->
+    <meta name="theme-color" content="#ffffff" data-theme-color />
     <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:site_name" content={siteConfig.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${siteConfig.name} — ${siteConfig.role}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={`${siteConfig.name} — ${siteConfig.role}`} />
     <link rel="canonical" href={canonical} />
     <link
       rel="alternate"
@@ -55,10 +63,17 @@ const socialImage = new URL(image, siteConfig.url);
     <title>{pageTitle}</title>
     <script is:inline>
       (() => {
-        const saved = localStorage.getItem("theme");
+        // localStorage throws in some privacy modes; the theme must still apply.
+        let saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch {}
         const dark =
           saved === "dark" || (!saved && matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.theme = dark ? "dark" : "light";
+        document
+          .querySelector("[data-theme-color]")
+          ?.setAttribute("content", dark ? "#0b0b0b" : "#ffffff");
       })();
     </script>
   </head>
@@ -113,7 +128,14 @@ const socialImage = new URL(image, siteConfig.url);
       themeToggle?.addEventListener("click", () => {
         const next = root.dataset.theme === "dark" ? "light" : "dark";
         root.dataset.theme = next;
-        localStorage.setItem("theme", next);
+        try {
+          localStorage.setItem("theme", next);
+        } catch {
+          /* Private mode: the theme still applies for this page view. */
+        }
+        document
+          .querySelector("[data-theme-color]")
+          ?.setAttribute("content", next === "dark" ? "#0b0b0b" : "#ffffff");
         updateThemeLabel();
       });
 
@@ -167,6 +189,7 @@ const socialImage = new URL(image, siteConfig.url);
         url: string;
         section: string;
         keywords: string[];
+        external?: boolean;
       };
       const readJson = (selector: string): SearchEntry[] => {
         const node = document.querySelector(selector);
@@ -230,8 +253,11 @@ const socialImage = new URL(image, siteConfig.url);
         searchResults.innerHTML = entries
           .map(
             (entry, index) => `
-              <a class="search-result" role="option" aria-selected="${index === 0}" href="${entry.url}" data-index="${index}">
+              <a class="search-result" role="option" id="search-result-${index}" aria-selected="${index === 0}" href="${escapeHtml(entry.url)}" data-index="${index}"${
+                entry.external ? ' target="_blank" rel="noreferrer"' : ""
+              }>
                 ${highlight(entry.title, terms)}
+                ${entry.external ? '<span class="result-external" aria-label="opens in a new tab">↗</span>' : ""}
               </a>`,
           )
           .join("");
@@ -246,6 +272,11 @@ const socialImage = new URL(image, siteConfig.url);
           node.setAttribute("aria-selected", String(active));
           if (active) node.scrollIntoView({ block: "nearest" });
         });
+        // Without this the combobox never announces which row is highlighted.
+        searchInput?.setAttribute(
+          "aria-activedescendant",
+          activeIndex >= 0 ? `search-result-${activeIndex}` : "",
+        );
       };
 
       const showSuggestions = () => {
@@ -299,7 +330,9 @@ const socialImage = new URL(image, siteConfig.url);
         } else if (event.key === "Enter") {
           event.preventDefault();
           const target = currentResults[activeIndex];
-          if (target) location.href = target.url;
+          if (!target) return;
+          if (target.external) window.open(target.url, "_blank", "noreferrer");
+          else location.href = target.url;
         }
       });
 

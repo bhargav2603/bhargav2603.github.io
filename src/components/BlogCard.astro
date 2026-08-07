@@ -26,7 +26,7 @@ const { id, data } = Astro.props;
       {data.tags.map((tag) => <span class="pill">{tag}</span>)}
     </div>
     <span class="read-link">
-      {data.readingTime ?? "read"}
+      {data.readingTime ?? "Read"}
       <Icon name="arrow" size={16} />
     </span>
   </div>

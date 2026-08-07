@@ -148,23 +148,24 @@ h3 {
   font-size: 1.2rem;
 }
 
+/* Justified text needs hyphenation, or short measures open rivers of
+   whitespace between words. */
+p,
+li {
+  hyphens: auto;
+  text-align: justify;
+}
+
 p {
   margin: 0 0 1rem;
-  text-align: justify;
 }
 
-/* Content list items are justified to match paragraphs. Navigation and other
-   UI lists opt back out below, where justification would stretch short labels. */
-li {
-  text-align: justify;
-}
-
-.nav-links li,
-.contact-links li,
-.tech-list li,
-.article-tags li,
-.story-tags li {
-  text-align: left;
+/* Phone widths are too narrow to justify well even with hyphens. */
+@media (max-width: 560px) {
+  p,
+  li {
+    text-align: left;
+  }
 }
 
 ul,
@@ -243,6 +244,8 @@ th {
 
 .page {
   min-height: calc(100vh - var(--header-height) - 98px);
+  /* dvh tracks the mobile address bar; vh above is the fallback. */
+  min-height: calc(100dvh - var(--header-height) - 98px);
   padding-block: 3.5rem 5rem;
 }
 
@@ -607,6 +610,12 @@ th {
   text-decoration: none;
 }
 
+.result-external {
+  margin-left: 0.35rem;
+  color: var(--faint);
+  font-size: 0.85em;
+}
+
 .search-result mark {
   border-radius: 2px;
   background: color-mix(in srgb, var(--accent-fill) 26%, transparent);
@@ -825,50 +834,6 @@ button.pill {
   color: var(--accent);
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-top: 2.5rem;
-}
-
-.pagination a,
-.pagination span {
-  display: grid;
-  min-width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 0.3rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.pagination .current {
-  border-color: var(--coral);
-  background: var(--coral);
-  color: var(--bg);
-}
-
-.empty-state {
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  padding: 2rem;
-  color: var(--muted);
-  text-align: center;
-}
-
-@keyframes reveal {
-  from {
-    transform: translateY(-5px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
 .image-lightbox {
   width: min(1080px, calc(100% - 2rem));
   max-height: calc(100vh - 2rem);
@@ -959,12 +924,12 @@ button.pill {
   }
 
   .search-trigger::after {
-    content: "search";
+    content: "Search";
   }
 
   .theme-toggle::after {
     margin-left: 0.45rem;
-    content: "toggle theme";
+    content: "Toggle theme";
   }
 
   .article-shell {

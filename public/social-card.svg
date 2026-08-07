@@ -20,7 +20,7 @@
     <circle cx="958" cy="315" r="15" fill="#fff" stroke="none"/>
   </g>
   <text x="90" y="252" fill="#fff" font-family="Inter,Segoe UI,sans-serif" font-size="76" font-weight="300">Bhargav <tspan font-weight="650">Krishna</tspan></text>
-  <text x="94" y="322" fill="#E4DED2" font-family="Inter,Segoe UI,sans-serif" font-size="30">Quantum Algorithms Researcher</text>
+  <text x="94" y="322" fill="#E4DED2" font-family="Inter,Segoe UI,sans-serif" font-size="30">Quantum Algorithm Engineer</text>
   <rect x="94" y="368" width="310" height="5" rx="2" fill="url(#line)"/>
-  <text x="94" y="430" fill="#BDB4A7" font-family="Inter,Segoe UI,sans-serif" font-size="22">quantum algorithms · chemistry · scientific software</text>
+  <text x="94" y="430" fill="#BDB4A7" font-family="Inter,Segoe UI,sans-serif" font-size="22">Hybrid quantum-classical algorithms · benchmarking</text>
 </svg>

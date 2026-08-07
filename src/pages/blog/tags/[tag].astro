@@ -2,16 +2,26 @@
 import { getCollection } from "astro:content";
 import BlogCard from "../../../components/BlogCard.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { slugify } from "../../../utils/slug";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
-  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
-  return tags.map((tag) => ({ params: { tag }, props: { tag } }));
+  // Keyed by slug so two spellings of one tag collapse into a single page
+  // rather than colliding on the same route.
+  const bySlug = new Map<string, string>();
+  for (const tag of posts.flatMap((post) => post.data.tags)) {
+    if (!bySlug.has(slugify(tag))) bySlug.set(slugify(tag), tag);
+  }
+  return [...bySlug].map(([slug, tag]) => ({ params: { tag: slug }, props: { tag } }));
 }
 
 const { tag } = Astro.props;
+const slug = slugify(tag);
 const posts = (
-  await getCollection("blog", ({ data }) => !data.draft && data.tags.includes(tag))
+  await getCollection(
+    "blog",
+    ({ data }) => !data.draft && data.tags.some((item) => slugify(item) === slug),
+  )
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
