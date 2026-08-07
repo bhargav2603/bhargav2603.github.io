@@ -1,6 +1,5 @@
 ---
 import Icon from "./Icon.astro";
-import { siteConfig } from "../config";
 
 interface Props {
   label?: string;
@@ -16,7 +15,7 @@ const {
 <aside class="now-note" aria-label={label}>
   <p class="now-label">{label}</p>
   <p class="now-body">{body}</p>
-  <a href={`mailto:${siteConfig.email}`}>Get in touch <Icon name="arrow" size={15} /></a>
+  <a href="/#contact">Get in touch <Icon name="arrow" size={15} /></a>
 </aside>
 
 <style>
