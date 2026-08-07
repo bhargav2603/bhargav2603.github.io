@@ -145,14 +145,47 @@ const socialImage = new URL(image, siteConfig.url);
         navLinks?.classList.toggle("open", !open);
       });
 
-      const updateScroll = () => {
-        const scrollable = document.documentElement.scrollHeight - innerHeight;
+      // Reading scrollHeight forces a synchronous layout of the whole document,
+      // which is expensive on long posts. It also cannot change while the page
+      // is scrolling, so measure it once and refresh only when it really could
+      // differ: on resize, and once webfonts have settled the line breaks.
+      let scrollable = 0;
+      const measure = () => {
+        scrollable = document.documentElement.scrollHeight - innerHeight;
+      };
+
+      let queued = false;
+      const paintScroll = () => {
+        queued = false;
         const ratio = scrollable > 0 ? scrollY / scrollable : 0;
         if (progress) progress.style.transform = `scaleX(${ratio})`;
         backToTop?.classList.toggle("visible", scrollY > 500);
       };
-      addEventListener("scroll", updateScroll, { passive: true });
-      updateScroll();
+
+      // Scroll can fire more than once per frame, and only the last value is
+      // ever seen, so coalesce into a single frame-aligned update.
+      const onScroll = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(paintScroll);
+      };
+
+      measure();
+      paintScroll();
+      addEventListener("scroll", onScroll, { passive: true });
+      addEventListener(
+        "resize",
+        () => {
+          measure();
+          onScroll();
+        },
+        { passive: true },
+      );
+      document.fonts?.ready.then(() => {
+        measure();
+        onScroll();
+      });
+
       backToTop?.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
 
       const openSearch = () => {
@@ -270,7 +303,9 @@ const socialImage = new URL(image, siteConfig.url);
           const active = index === activeIndex;
           node.classList.toggle("active", active);
           node.setAttribute("aria-selected", String(active));
-          if (active) node.scrollIntoView({ block: "nearest" });
+          // Instant, not smooth: html sets scroll-behavior: smooth, which would
+          // make arrow-key navigation glide instead of respond.
+          if (active) node.scrollIntoView({ block: "nearest", behavior: "instant" });
         });
         // Without this the combobox never announces which row is highlighted.
         searchInput?.setAttribute(
