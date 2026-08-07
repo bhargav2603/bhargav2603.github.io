@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "dev": "node api.js && astro dev",
+    "start": "node api.js && astro dev",
+    "build": "node api.js && astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
     "social-card": "node scripts/social-card.mjs",
