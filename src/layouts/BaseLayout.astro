@@ -37,7 +37,7 @@ const socialImage = new URL(image, siteConfig.url);
     <meta name="description" content={description} />
     <!-- Single tag, kept in sync with the theme toggle by the script below.
          Media-query variants would follow the OS instead of the user's choice. -->
-    <meta name="theme-color" content="#ffffff" data-theme-color />
+    <meta name="theme-color" content="#faf9f7" data-theme-color />
     <meta property="og:type" content={article ? "article" : "website"} />
     <meta property="og:site_name" content={siteConfig.name} />
     <meta property="og:title" content={pageTitle} />
@@ -73,7 +73,7 @@ const socialImage = new URL(image, siteConfig.url);
         document.documentElement.dataset.theme = dark ? "dark" : "light";
         document
           .querySelector("[data-theme-color]")
-          ?.setAttribute("content", dark ? "#0b0b0b" : "#ffffff");
+          ?.setAttribute("content", dark ? "#141414" : "#faf9f7");
       })();
     </script>
   </head>
@@ -135,7 +135,7 @@ const socialImage = new URL(image, siteConfig.url);
         }
         document
           .querySelector("[data-theme-color]")
-          ?.setAttribute("content", next === "dark" ? "#0b0b0b" : "#ffffff");
+          ?.setAttribute("content", next === "dark" ? "#141414" : "#faf9f7");
         updateThemeLabel();
       });
 
