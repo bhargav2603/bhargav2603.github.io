@@ -43,7 +43,7 @@ genuinely value a pointer or a conversation.
 | Section                 | What you will find                                                                   |
 | :---------------------- | :----------------------------------------------------------------------------------- |
 | **About**               | Who I am, what I work on, and how to reach me                                        |
-| **CV**                  | Full professional history, viewable in the browser or downloadable as PDF            |
+| **Resume**              | Full professional history, viewable in the browser or downloadable as PDF            |
 | **Research & Projects** | Quantum algorithm work, with the research question and current focus stated for each |
 | **Blogs**               | 9 essays on quantum algorithms, benchmarking, measurement, and research engineering  |
 | **Interests**           | 10 books, articles, people, recordings, and stories I return to                      |
@@ -110,7 +110,7 @@ src/
 ├── config.ts            Identity, navigation, and links
 ├── content/             Blog posts, projects, and interests (Markdown)
 ├── content.config.ts    Schemas that validate all of the above
-├── data/cv.ts           Curriculum vitae
+├── data/resume.ts       Experience, education, leadership, and skills
 ├── components/          Cards, icons, search modal, header, footer
 ├── layouts/             The shared page shell
 ├── pages/               Routes

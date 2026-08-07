@@ -17,11 +17,11 @@ export const siteConfig = {
   email: "cbky2603@gmail.com",
   github: "https://github.com/bhargav2603",
   linkedin: "https://www.linkedin.com/in/bhargav2603/",
-  resume: "/Bhargav-Krishna-CV.pdf",
+  resume: "/Bhargav-Krishna-Resume.pdf",
   url: "https://bhargav2603.github.io",
   nav: [
     { label: "About", href: "/" },
-    { label: "CV", href: "/cv/" },
+    { label: "Resume", href: "/resume/" },
     { label: "Research & Projects", href: "/projects/" },
     { label: "Blogs", href: "/blog/" },
     { label: "Interests", href: "/interests/" },

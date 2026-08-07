@@ -22,7 +22,7 @@ npm run validate  # format:check + astro check + build
 
 - `trailingSlash: "always"` in `astro.config.mjs` — `/blog` 404s, `/blog/` works
 - Site content lives in data files, not templates: `src/config.ts` (identity, nav),
-  `src/data/cv.ts` (CV), `src/data/repositories.ts` (repo fallbacks)
+  `src/data/resume.ts` (resume), `src/data/repositories.ts` (repo fallbacks)
 - Run `npx prettier --write` on changed files before committing; `npm run validate`
   fails on format drift
 

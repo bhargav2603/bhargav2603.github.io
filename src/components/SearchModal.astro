@@ -28,11 +28,11 @@ const pages: IndexEntry[] = [
     keywords: ["home", "about", "bio", siteConfig.role],
   },
   {
-    title: "CV",
+    title: "Resume",
     description: "Experience, education, leadership, and skills.",
-    url: "/cv/",
+    url: "/resume/",
     section: "Page",
-    keywords: ["cv", "resume", "experience", "education", "skills"],
+    keywords: ["resume", "cv", "experience", "education", "skills"],
   },
   {
     title: "Research & Projects",
@@ -100,7 +100,7 @@ const searchIndex: IndexEntry[] = [
 // Shown when the input is empty: the pages people actually want, plus the
 // three most recent posts so the panel is never a dead end. Looked up by URL
 // rather than array position, so reordering `pages` cannot silently change it.
-const suggested = ["/cv/", "/projects/", "/blog/"]
+const suggested = ["/resume/", "/projects/", "/blog/"]
   .map((url) => pages.find((page) => page.url === url))
   .filter((page): page is IndexEntry => page !== undefined);
 
@@ -122,7 +122,7 @@ const suggestions: IndexEntry[] = [
       <Icon name="search" size={20} />
       <input
         type="search"
-        placeholder="Search posts, projects, CV, and interests…"
+        placeholder="Search posts, projects, resume, and interests…"
         aria-label="Search site"
         autocomplete="off"
         role="combobox"

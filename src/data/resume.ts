@@ -1,4 +1,4 @@
-export const cv = {
+export const resume = {
   education: [
     {
       period: "Jul 2020 — May 2024",

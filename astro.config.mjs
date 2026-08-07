@@ -9,11 +9,18 @@ export default defineConfig({
   output: "static",
   integrations: [
     // Tag and category listings are thin, duplicative pages; keeping them out
-    // of the sitemap points crawlers at the posts themselves.
+    // of the sitemap points crawlers at the posts themselves. /cv/ is a legacy
+    // redirect, not content.
     sitemap({
-      filter: (page) => !["/blog/tags/", "/blog/category/"].some((path) => page.includes(path)),
+      filter: (page) =>
+        !["/blog/tags/", "/blog/category/", "/cv/"].some((path) => page.includes(path)),
     }),
   ],
+  // The CV page became /resume/; keep the old URL working for anything that
+  // already links to it.
+  redirects: {
+    "/cv/": "/resume/",
+  },
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],

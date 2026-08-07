@@ -1,22 +1,22 @@
 ---
 import Icon from "../components/Icon.astro";
 import { siteConfig } from "../config";
-import { cv } from "../data/cv";
+import { resume } from "../data/resume";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="CV" description={siteConfig.description}>
+<BaseLayout title="Resume" description={siteConfig.description}>
   <div class="page container" data-pagefind-body>
-    <header class="cv-header">
+    <header class="resume-header">
       <div>
-        <h1>CV</h1>
-        <p class="cv-role">{siteConfig.role}</p>
+        <h1>Resume</h1>
+        <p class="resume-role">{siteConfig.role}</p>
       </div>
-      <div class="cv-actions">
+      <div class="resume-actions">
         <a class="button" href={siteConfig.resume} target="_blank" rel="noreferrer">
-          View CV <Icon name="external" size={16} />
+          View resume <Icon name="external" size={16} />
         </a>
-        <a class="button secondary" href={siteConfig.resume} download="Bhargav-Krishna-CV.pdf">
+        <a class="button secondary" href={siteConfig.resume} download="Bhargav-Krishna-Resume.pdf">
           Download <Icon name="download" size={17} />
         </a>
       </div>
@@ -28,11 +28,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <a href={siteConfig.github} target="_blank" rel="noreferrer">GitHub</a>
     </div>
 
-    <section class="cv-section">
+    <section class="resume-section">
       <h2>Experience</h2>
       <div class="timeline">
         {
-          cv.experience.map((item) => (
+          resume.experience.map((item) => (
             <article class="timeline-item">
               <div class="period">{item.period}</div>
               <div class="entry">
@@ -59,11 +59,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
     </section>
 
-    <section class="cv-section">
+    <section class="resume-section">
       <h2>Education</h2>
       <div class="timeline">
         {
-          cv.education.map((item) => (
+          resume.education.map((item) => (
             <article class="timeline-item">
               <div class="period">{item.period}</div>
               <div class="entry">
@@ -77,11 +77,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
     </section>
 
-    <section class="cv-section">
+    <section class="resume-section">
       <h2>Leadership experience</h2>
       <div class="timeline compact">
         {
-          cv.leadership.map((item) => (
+          resume.leadership.map((item) => (
             <article class="timeline-item">
               <div class="period">{item.period}</div>
               <div class="entry">
@@ -99,11 +99,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
     </section>
 
-    <section class="cv-section two-column-section">
+    <section class="resume-section two-column-section">
       <div>
         <h2>Analytical and professional skills</h2>
         {
-          cv.skills.map((skill) => (
+          resume.skills.map((skill) => (
             <div class="skill-group">
               <h3>{skill.group}</h3>
               <div>
@@ -117,14 +117,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
       <div>
         <h2>Additional information</h2>
-        <ul class="interest-list">{cv.interests.map((interest) => <li>{interest}</li>)}</ul>
+        <ul class="interest-list">{resume.interests.map((interest) => <li>{interest}</li>)}</ul>
       </div>
     </section>
   </div>
 </BaseLayout>
 
 <style>
-  .cv-header {
+  .resume-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -132,28 +132,28 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     margin-bottom: 1.5rem;
   }
 
-  .cv-header > div {
+  .resume-header > div {
     max-width: 690px;
   }
 
-  .cv-header h1 {
+  .resume-header h1 {
     margin-bottom: 0.5rem;
     font-size: clamp(2.3rem, 5vw, 2.7rem);
     font-weight: 650;
   }
 
-  .cv-header p {
+  .resume-header p {
     color: var(--muted);
   }
 
-  .cv-header .cv-role {
+  .resume-header .resume-role {
     margin-bottom: 0;
     color: var(--text);
     font-size: 1rem;
     font-weight: 620;
   }
 
-  .cv-actions {
+  .resume-actions {
     display: flex;
     flex: 0 0 auto;
     flex-wrap: wrap;
@@ -170,11 +170,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     font-size: 0.82rem;
   }
 
-  .cv-section {
+  .resume-section {
     margin-top: 3rem;
   }
 
-  .cv-section > h2,
+  .resume-section > h2,
   .two-column-section h2 {
     margin: 0 0 1.2rem;
     font-size: 1.5rem;
@@ -258,12 +258,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   @media (max-width: 700px) {
-    .cv-header,
+    .resume-header,
     .two-column-section {
       display: block;
     }
 
-    .cv-actions {
+    .resume-actions {
       margin-top: 1rem;
     }
 
